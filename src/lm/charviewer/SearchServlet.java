@@ -12,13 +12,15 @@ public class SearchServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String name = request.getParameter("characterName");
         String realm = request.getParameter("realmName");
-        CharacterViewer.getCharacter(name, realm);
-        request.setAttribute("searched", "true");
-//        getServletContext().getRequestDispatcher("/index.jsp").forward(request, response);
+        CharacterViewer characterViewer = new CharacterViewer();
+        characterViewer.getCharacter(name, realm);
+        request.setAttribute("searched", true);
+        request.setAttribute("char", characterViewer);
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 }
+

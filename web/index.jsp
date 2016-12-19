@@ -13,10 +13,7 @@
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script
-        src="https://code.jquery.com/jquery-3.1.1.min.js"
-        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 
 <html>
     <head>
@@ -35,50 +32,58 @@
             </div>
         </div>
 
+        <c:set var="characterViewer" value="${char}"/>
         <div id="holder" class="jumbotron mainJumbo" style="display: none">
             <div class="container" style="width: 100%">
-                <div class="row">
-                    <div class="col-md-8">
+                <div class="row" style="width: 100%">
+                    <div class="col-md-6">
                         <div class="jumbotron innerJumbo">
                             <div class="row">
-                                <h2 align="center" style="color: white"><%=CharacterViewer.getName()%></h2>
-                                <h3 align="center" style="color: white"><em>lv:<%=CharacterViewer.getLevel()%> | <%=CharacterViewer.getHealth()%>hp</em></h3>
-                                <div class="col-md-4">
+                                <h2 align="center" style="color: white">
+                                    <c:out value="${characterViewer.getName()}"/>
+                                </h2>
+                                <h3 align="center" style="color: white"><em>lv:<c:out value="${characterViewer.getLevel()}"/>
+                                    | <c:out value="${characterViewer.getHealth()}"/>
+                                    hp</em></h3>
+                                <div class="col-md-6">
                                     <h3 style="color: white">Attributes</h3>
-                                    <table class="table borderless">
+                                    <table class="table table-borderless">
                                         <tbody id="attributes">
                                         </tbody>
                                     </table>
 
                                     <h3 style="color: white">Attack</h3>
-                                    <table class="table borderless">
+                                    <table class="table table-borderless">
                                         <tbody id="attack"></tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <h3 style="color: white">Defense</h3>
-                                    <table class="table borderless">
+                                    <table class="table table-borderless">
                                         <tbody id="defense"></tbody>
                                     </table>
 
                                     <h3 style="color: white">Enhancements</h3>
-                                    <table class="table borderless">
+                                    <table class="table table-borderless">
                                         <tbody id="enhancements"></tbody>
                                     </table>
-                                </div>
-                                <div class="col-md-4">
-                                    <h3 style="color: #95732e">Compare Stats</h3>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="jumbotron innerJumbo">
-                            <h3 style="color: #95732e">My Item Sets</h3>
-                            <table class="table borderless">
+                            <h3 style="color: white">Items</h3>
+                            <table class="table table-borderless">
                                 <tbody id="items"></tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-1" align="right">
+                        <div style="margin-right: 20px; margin-top: 20px; margin-bottom: 20px">
+                            <img id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">
                         </div>
                     </div>
                 </div>
@@ -87,8 +92,13 @@
     </body>
 
     <script>
+        $("#close").click(function () {
+           $("#holder").slideUp();
+        });
+
         <c:if test="${searched != null}">
-            var attributes = <%=CharacterViewer.getAttributes()%>;
+            var attributes = ${characterViewer.getAttributes()};
+
             var a = "";
             for (var attr in attributes) {
                 a +=    "<tr> " +
@@ -98,7 +108,7 @@
             }
             $("#attributes").html(a);
 
-            var attackList = <%=CharacterViewer.getAttack()%>;
+            var attackList = ${characterViewer.getAttack()};
             var att = "";
             for (var attack in attackList) {
                 att +=    "<tr> " +
@@ -108,7 +118,7 @@
             }
             $("#attack").html(att);
 
-            var defense = <%=CharacterViewer.getDefense()%>;
+            var defense = ${characterViewer.getDefense()};
             var d = "";
             for (var def in defense) {
                 d +=    "<tr> " +
@@ -118,7 +128,7 @@
             }
             $("#defense").html(d);
 
-            var enhancements = <%=CharacterViewer.getEnhancements()%>;
+            var enhancements = ${characterViewer.getEnhancements()};
             var e = "";
             for (var enh in enhancements) {
                 e +=    "<tr> " +
@@ -128,7 +138,7 @@
             }
             $("#enhancements").html(e);
 
-            var items = <%=CharacterViewer.getItems()%>;
+            var items = ${characterViewer.getItems()};
             var i = "";
             for (var it in items) {
                 i +=    "<tr> " +
@@ -141,16 +151,6 @@
 
             $("#holder").slideDown();
         </c:if>
-
-        <%--<%String searched = (String)request.getAttribute("searched");%>--%>
-        <%--<%=searched%>--%>
-        <%--<%if (searched != null){%>--%>
-            <%--var attributes = <%=CharacterViewer.getAttributes()%>;--%>
-            <%--for (var attr in attributes) {--%>
-                <%--$("#attributes").html("<tr> <td> attr.key </td> <td> attr.val </td> </tr>")--%>
-            <%--}--%>
-            <%--$("#holder").slideDown();--%>
-        <%--<%}%>--%>
 
     </script>
 

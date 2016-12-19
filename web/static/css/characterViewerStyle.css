@@ -8,6 +8,7 @@ body
 .mainJumbo {
     background: rgba(15, 22, 48, 0.55);
     width: 100%;
+    margin: 0;
 }
 
 .innerJumbo {
@@ -23,6 +24,11 @@ body
     color: white;
 }
 
-.borderless td, .borderless th {
+.table-borderless tbody tr td,
+.table-borderless tbody tr th,
+.table-borderless thead tr th,
+.table-borderless thead tr td,
+.table-borderless tfoot tr th,
+.table-borderless tfoot tr td {
     border: none;
 }
