@@ -1,0 +1,28 @@
+body
+{
+    background-image: url(../images/background.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.mainJumbo {
+    background: rgba(15, 22, 48, 0.55);
+    width: 100%;
+}
+
+.innerJumbo {
+    background: rgba(15, 22, 48, 0.7);
+    width: 100%;
+}
+
+.tableKey {
+    color: #95732e;
+}
+
+.tableVal {
+    color: white;
+}
+
+.borderless td, .borderless th {
+    border: none;
+}
