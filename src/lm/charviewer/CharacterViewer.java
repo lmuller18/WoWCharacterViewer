@@ -1,5 +1,6 @@
 package lm.charviewer;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class CharacterViewer {
 
-    private static JsonObject charObj;
+    public static JsonObject charObj;
 
     public static void getCharacter(String name, String realm){
         String charInfo = "";
@@ -68,7 +69,7 @@ public class CharacterViewer {
         return charObj.get("name").getAsString();
     }
 
-    public static HashMap<String, String> getAttributes(){
+    public static String getAttributes(){
         if(charObj == null){
             return null;
         }
@@ -80,10 +81,12 @@ public class CharacterViewer {
         attributes.put("Intellect", object.get("int").getAsString());
         attributes.put("Stamina", object.get("sta").getAsString());
 
-        return attributes;
+        String json = new Gson().toJson(attributes);
+
+        return json;
     }
 
-    public static HashMap<String, String> getAttack(){
+    public static String getAttack(){
         if(charObj == null){
             return null;
         }
@@ -126,10 +129,12 @@ public class CharacterViewer {
         attributes.put("Ranged Damage", rangedDmg);
         attributes.put("Ranged DPS", object.get("sta").getAsString());
 
-        return attributes;
+        String json = new Gson().toJson(attributes);
+
+        return json;
     }
 
-    public static HashMap<String, String> getDefense(){
+    public static String getDefense(){
         if(charObj == null){
             return null;
         }
@@ -141,10 +146,12 @@ public class CharacterViewer {
         attributes.put("Parry", String.format("%.2f", object.get("parry").getAsDouble()) + "%");
         attributes.put("Block", String.format("%.2f", object.get("block").getAsDouble()) + "%");
 
-        return attributes;
+        String json = new Gson().toJson(attributes);
+
+        return json;
     }
 
-    public static HashMap<String, String> getEnhancements(){
+    public static String getEnhancements(){
         if(charObj == null){
             return null;
         }
@@ -158,10 +165,12 @@ public class CharacterViewer {
         attributes.put("Leech", String.format("%.2f", object.get("leech").getAsDouble()) + "%");
         attributes.put("Versatility", String.format("%.2f", object.get("versatility").getAsDouble()) + "%");
 
-        return attributes;
+        String json = new Gson().toJson(attributes);
+
+        return json;
     }
 
-    public static HashMap<String, String> getItems(){
+    public static String getItems(){
         if(charObj == null){
             return null;
         }
@@ -178,7 +187,10 @@ public class CharacterViewer {
 
             }
         }
-        return items;
+
+        String json = new Gson().toJson(items);
+
+        return json;
     }
 
 }
