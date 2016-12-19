@@ -5,9 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,18 +14,29 @@ import java.sql.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Class for accessing Blizzard API for WoW character stats
+ */
 public class CharacterViewer {
 
+    // the currently searched for character as a jsonObject
     public JsonObject charObj;
 
+    // database variables
     private static Connection con;
     private static String url = "jdbc:mysql://localhost:3306/wowcharacter";
     private static String user = "root";
     private static String password = "test";
 
+    /**
+     * Retrieves the JsonObject for the given character
+     * @param name - the name of the character to search for
+     * @param realm - the realm of the character to search for
+     */
     public void getCharacter(String name, String realm){
         String charInfo = "";
         try {
+            // access the api
             URL url = new URL("https://us.api.battle.net/wow/character/"+realm+"/"+name+"?fields=stats,items&locale=en_US&apikey=9ebxvqhu6a5ym2u8cgc7eg3u3tsd8cae");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -39,6 +47,7 @@ public class CharacterViewer {
                         + conn.getResponseCode());
             }
 
+            // retrieve the json data
             BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
             String output;
             while ((output = br.readLine()) != null) {
@@ -47,9 +56,14 @@ public class CharacterViewer {
             br.close();
             conn.disconnect();
 
+            // cast to json
             JsonParser jsonParser = new JsonParser();
             JsonElement element = jsonParser.parse(charInfo);
+
+            // set charObj
             charObj = element.getAsJsonObject();
+
+            // add basic char info to the database
             addToDatabase();
 
         } catch (IOException e) {
@@ -57,6 +71,9 @@ public class CharacterViewer {
         }
     }
 
+    /**
+     * Add to Character database
+     */
     private void addToDatabase(){
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -76,18 +93,147 @@ public class CharacterViewer {
         }
     }
 
+    /**
+     * Returns hp for current character
+     * @return character's hp
+     */
     public int getHealth(){
         return charObj.get("stats").getAsJsonObject().get("health").getAsInt();
     }
 
+    /**
+     * Returns level for current character
+     * @return character's level
+     */
     public int getLevel(){
         return charObj.get("level").getAsInt();
     }
 
+    /**
+     * Returns name for current character
+     * @return character's name
+     */
     public String getName(){
         return charObj.get("name").getAsString();
     }
 
+    public static String getCompareAttributes(String name){
+        try{
+            String query = "SELECT * from ATTRIBUTES WHERE Attribute_ID = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            LinkedHashMap<String, Integer> attributes = new LinkedHashMap<>();
+            while(rs.next()){
+                attributes.put("Strength", rs.getInt("STRENGTH"));
+                attributes.put("Agility", rs.getInt("AGILITY"));
+                attributes.put("Intellect", rs.getInt("INTELLECT"));
+                attributes.put("Stamina", rs.getInt("STAMINA"));
+            }
+            String json = new Gson().toJson(attributes);
+            return json;
+        } catch (SQLException e){
+
+        }
+        return "";
+    }
+
+    public static String getCompareAttack(String name){
+        try{
+            String query = "SELECT * from ATTACK WHERE Attack_ID = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+            while(rs.next()){
+                attributes.put("Main Hand Damage", rs.getString("MainHandDmg"));
+                attributes.put("Main Hand DPS", Integer.toString(rs.getInt("MainHandDPS")));
+                attributes.put("Off Hand Damage", rs.getString("OffHandDmg"));
+                attributes.put("Off Hand DPS", Integer.toString(rs.getInt("OffHandDPS")));
+                attributes.put("Ranged Damage", rs.getString("RangedDmg"));
+                attributes.put("Ranged DPS", Integer.toString(rs.getInt("RangedDPS")));
+            }
+            String json = new Gson().toJson(attributes);
+            return json;
+        } catch (SQLException e){
+
+        }
+        return "";
+    }
+
+    public static String getCompareDefense(String name){
+        try{
+            String query = "SELECT * from DEFENSE WHERE Defense_ID = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+            while(rs.next()){
+                attributes.put("Armor", Integer.toString(rs.getInt("ARMOR")));
+                attributes.put("Dodge", rs.getString("DODGE"));
+                attributes.put("Parry", rs.getString("PARRY"));
+                attributes.put("Block", rs.getString("BLOCK"));
+            }
+            String json = new Gson().toJson(attributes);
+            return json;
+        } catch (SQLException e){
+
+        }
+        return "";
+    }
+
+    public static String getCompareEnhancements(String name){
+        try{
+            String query = "SELECT * from ENHANCEMENTS WHERE Enhancement_ID = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+            while(rs.next()){
+                attributes.put("Crit", rs.getString("CRIT"));
+                attributes.put("Haste", rs.getString("HASTE"));
+                attributes.put("Mastery", rs.getString("MASTERY"));
+                attributes.put("Leech", rs.getString("LEECH"));
+                attributes.put("Versatility", rs.getString("VERSATILITY"));
+            }
+            String json = new Gson().toJson(attributes);
+            return json;
+        } catch (SQLException e){
+
+        }
+        return "";
+    }
+
+    public static String getCompareCharacter(String name){
+        try{
+            String query = "SELECT * from `CHARACTER` WHERE CHARNAME = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            LinkedHashMap<String, Integer> attributes = new LinkedHashMap<>();
+            while(rs.next()){
+                attributes.put("lv", rs.getInt("LEVEL"));
+                attributes.put("hp", rs.getInt("HP"));
+            }
+            String json = new Gson().toJson(attributes);
+            return json;
+        } catch (SQLException e){
+
+        }
+        return "";
+    }
+
+
+    /**
+     * Returns attributes for the current character
+     * Adds attributes to db
+     * @return character's attributes
+     */
     public String getAttributes(){
         JsonObject object = charObj.get("stats").getAsJsonObject();
         LinkedHashMap<String, Integer> attributes = new LinkedHashMap<>();
@@ -121,6 +267,11 @@ public class CharacterViewer {
         return json;
     }
 
+    /**
+     * Returns attack attributes for character
+     * adds attack to db
+     * @return character's attack
+     */
     public String getAttack(){
         JsonObject object = charObj.get("stats").getAsJsonObject();
         LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
@@ -186,6 +337,11 @@ public class CharacterViewer {
         return json;
     }
 
+    /**
+     * Returns defense attributes for character
+     * adds defense to db
+     * @return character's defense
+     */
     public String getDefense(){
         if(charObj == null){
             return null;
@@ -224,6 +380,11 @@ public class CharacterViewer {
         return json;
     }
 
+    /**
+     * Returns enhancements of current character
+     * adds enhancements to db
+     * @return character's enhancements
+     */
     public String getEnhancements(){
         if(charObj == null){
             return null;
@@ -265,6 +426,11 @@ public class CharacterViewer {
         return json;
     }
 
+    /**
+     * Returns currently equipped items
+     * adds items to db
+     * @return currently equipped items
+     */
     public String getItems(){
         if(charObj == null){
             return null;

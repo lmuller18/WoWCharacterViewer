@@ -1,8 +1,18 @@
 <%@ page import="lm.charviewer.CharacterViewer" %>
+<%@ page import="java.io.*,java.util.*,java.sql.*"%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 
 
+<sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
+                   url="jdbc:mysql://localhost:3306/wowcharacter"
+                   user="root"  password="test"/>
+
+<sql:query dataSource="${snapshot}" var="result">
+    SELECT * from `character`;
+</sql:query>
 
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -36,7 +46,7 @@
         <div id="holder" class="jumbotron mainJumbo" style="display: none">
             <div class="container" style="width: 100%">
                 <div class="row" style="width: 100%">
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="jumbotron innerJumbo">
                             <div class="row">
                                 <h2 align="center" style="color: white">
@@ -45,7 +55,7 @@
                                 <h3 align="center" style="color: white"><em>lv:<c:out value="${characterViewer.getLevel()}"/>
                                     | <c:out value="${characterViewer.getHealth()}"/>
                                     hp</em></h3>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <h3 style="color: white">Attributes</h3>
                                     <table class="table table-borderless">
                                         <tbody id="attributes">
@@ -57,7 +67,7 @@
                                         <tbody id="attack"></tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <h3 style="color: white">Defense</h3>
                                     <table class="table table-borderless">
                                         <tbody id="defense"></tbody>
@@ -66,6 +76,27 @@
                                     <h3 style="color: white">Enhancements</h3>
                                     <table class="table table-borderless">
                                         <tbody id="enhancements"></tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-4">
+                                    <h3 style="color: white">Compare Characters</h3>
+                                    <table class="table table-borderless">
+                                        <thead>
+                                            <tr>
+                                                <td class="tableVal">Character</td>
+                                                <td class="tableVal">Level</td>
+                                                <td class="tableVal">Health</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach var="row" items="${result.rows}">
+                                                <tr class="compareRow" >
+                                                    <td class="tableKey compareName" style="cursor: hand"><c:out value="${row.CHARNAME}"/></td>
+                                                    <td class="tableKey">lv <c:out value="${row.LEVEL}"/></td>
+                                                    <td class="tableKey"><c:out value="${row.HP}hp"/></td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -81,11 +112,11 @@
                         </div>
                     </div>
 
-                    <div class="col-md-1" align="right">
-                        <div style="margin-right: 20px; margin-top: 20px; margin-bottom: 20px">
-                            <img id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">
-                        </div>
-                    </div>
+                    <%--<div class="col-md-1" align="right">--%>
+                        <%--<div style="margin-right: 20px; margin-top: 20px; margin-bottom: 20px">--%>
+                            <%--<img id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">--%>
+                        <%--</div>--%>
+                    <%--</div>--%>
                 </div>
             </div>
         </div>
@@ -95,6 +126,101 @@
         $("#close").click(function () {
            $("#holder").slideUp();
         });
+
+        // jquery extend function
+        $.extend(
+            {
+                redirectPost: function(location, args)
+                {
+                    var form = '';
+                    $.each( args, function( key, value ) {
+                        form += '<input type="hidden" name="'+key+'" value="'+value+'">';
+                    });
+                    $('<form action="'+location+'" method="POST">'+form+'</form>').appendTo('body').submit();
+                }
+            });
+
+
+        $(function() {
+            $(".compareName").on("click",function(e) {
+                var redirect = "${pageContext.request.contextPath}/compare";
+                $.redirectPost(redirect, {
+                    name: $(this).text(),
+                    curName: "<c:out value="${characterViewer.getName()}"/>"
+                });
+            });
+        });
+
+        <c:if test="${compared != null}">
+            <c:set var="compAttributes" value="${compAttributes}"/>
+            <c:set var="curAttributes" value="${curAttributes}"/>
+            var attributes = ${curAttributes};
+            var compAttr = ${compAttributes};
+            var a = "";
+            for (var attr in attributes) {
+
+                a +=    "<tr> " +
+                    "<td class=\"tableKey\">" + attr + "</td>" +
+                    "<td class=\"tableVal\">" + attributes[attr] +" | "+ compAttr[attr] + "</td> " +
+                    "</tr>";
+            }
+            $("#attributes").html(a);
+
+            <c:set var="compAttack" value="${compAttack}"/>
+            <c:set var="curAttack" value="${curAttack}"/>
+            var attackList = ${curAttack};
+            var compAtta = ${compAttack};
+            var att = "";
+            for (var attack in attackList) {
+                att +=    "<tr> " +
+                    "<td class=\"tableKey\">" + attack + "</td> " +
+                    "<td class=\"tableVal\">" + attackList[attack] +" | "+ compAtta[attack] + "</td> " +
+                    "</tr>";
+            }
+            $("#attack").html(att);
+
+            <c:set var="compDefense" value="${compDefense}"/>
+            <c:set var="curDefense" value="${curDefense}"/>
+            var defense = ${curDefense};
+            var compDef = ${compDefense};
+            var d = "";
+            for (var def in defense) {
+                d +=    "<tr> " +
+                    "<td class=\"tableKey\">" + def + "</td> " +
+                    "<td class=\"tableVal\">" + defense[def] +" | " + compDef[def] + "</td> " +
+                    "</tr>";
+            }
+            $("#defense").html(d);
+
+            <c:set var="compEnhancements" value="${compEnhancements}"/>
+            <c:set var="curEnhancements" value="${curEnhancements}"/>
+            var enhancements = ${curEnhancements};
+            var compEnhance = ${compEnhancements};
+
+            var e = "";
+            for (var enh in enhancements) {
+                e +=    "<tr> " +
+                    "<td class=\"tableKey\">" + enh + "</td> " +
+                    "<td class=\"tableVal\">" + enhancements[enh] +" | "+ compEnhance[enh] + "</td> " +
+                    "</tr>";
+            }
+            $("#enhancements").html(e);
+
+            //TO DO
+            //EXPAND STATS TO 100%
+            //REMOVE COMPARE CHARACTER SECTION
+
+            <%--var items = ${characterViewer.getItems()};--%>
+            <%--var i = "";--%>
+            <%--for (var it in items) {--%>
+                <%--i +=    "<tr> " +--%>
+                    <%--"<td class=\"tableKey\">" + it + "</td> " +--%>
+                    <%--"<td class=\"tableVal\">" + items[it] + "</td> " +--%>
+                    <%--"</tr>";--%>
+            <%--}--%>
+            <%--$("#items").html(i);--%>
+            $("#holder").slideDown();
+        </c:if>
 
         <c:if test="${searched != null}">
             var attributes = ${characterViewer.getAttributes()};
@@ -147,8 +273,6 @@
                     "</tr>";
             }
             $("#items").html(i);
-
-
             $("#holder").slideDown();
         </c:if>
 
