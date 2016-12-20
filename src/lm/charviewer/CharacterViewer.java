@@ -113,9 +113,8 @@ public class CharacterViewer {
             rs.next();
             return rs.getInt("HP");
         } catch (SQLException e){
-
+            return -99;
         }
-        return 0;
     }
 
     /**
@@ -136,9 +135,8 @@ public class CharacterViewer {
             rs.next();
             return rs.getInt("LEVEL");
         } catch (SQLException e){
-
+            return -99;
         }
-        return 0;
     }
 
     /**
@@ -164,9 +162,8 @@ public class CharacterViewer {
             String json = new Gson().toJson(attributes);
             return json;
         } catch (SQLException e){
-
+            return null;
         }
-        return "";
     }
 
     /**
@@ -193,9 +190,8 @@ public class CharacterViewer {
             String json = new Gson().toJson(attributes);
             return json;
         } catch (SQLException e){
-
+            return null;
         }
-        return "";
     }
 
     /**
@@ -220,9 +216,8 @@ public class CharacterViewer {
             String json = new Gson().toJson(attributes);
             return json;
         } catch (SQLException e){
-
+            return null;
         }
-        return "";
     }
 
     /**
@@ -248,9 +243,8 @@ public class CharacterViewer {
             String json = new Gson().toJson(attributes);
             return json;
         } catch (SQLException e){
-
+            return null;
         }
-        return "";
     }
 
 
@@ -269,9 +263,8 @@ public class CharacterViewer {
             String json = new Gson().toJson(attributes);
             return json;
         } catch (SQLException e){
-
+            return null;
         }
-        return "";
     }
 
 
@@ -307,9 +300,8 @@ public class CharacterViewer {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e){
-
+            return null;
         }
-
         return json;
     }
 
@@ -377,7 +369,7 @@ public class CharacterViewer {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e){
-
+            return null;
         }
 
         return json;
@@ -420,7 +412,7 @@ public class CharacterViewer {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e){
-
+            return null;
         }
 
         return json;
@@ -466,7 +458,7 @@ public class CharacterViewer {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e){
-
+            return null;
         }
 
         return json;

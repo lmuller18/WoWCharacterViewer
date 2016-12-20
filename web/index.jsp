@@ -39,9 +39,13 @@
                     <input id="realmName" type="text" name="realmName" class="form-control" placeholder="Realm Name"><br>
                     <button id="searchButton" type="submit" class="btn btn-primary" style="width: 100%">Submit</button><br>
                 </form>
-                <div id="error" align="center" class="alert alert-danger alert-dismissible" style="display: none">
+                <div id="errorNotFound" align="center" class="alert alert-danger alert-dismissible" style="display: none">
                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                     <strong>Error: </strong> Character not found.
+                </div>
+                <div id="error" align="center" class="alert alert-danger alert-dismissible" style="display: none">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>Error: </strong> Please search again.
                 </div>
             </div>
         </div>
@@ -49,6 +53,7 @@
         <c:set var="characterViewer" value="${char}"/>
 
         <div id="holder" class="jumbotron mainJumbo" style="display: none">
+            <img class="close" id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">
             <div class="container" style="width: 100%">
                 <div class="row" style="width: 100%">
                     <div id="statsJumbo" class="col-md-6">
@@ -140,12 +145,6 @@
                             </table>
                         </div>
                     </div>
-
-                    <div class="col-md-1" align="right">
-                        <div style="margin-right: 20px; margin-top: 20px; margin-bottom: 20px">
-                            <img id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -153,6 +152,10 @@
 
     <script>
         <c:if test="${notFound}">
+            $("#errorNotFound").slideDown();
+        </c:if>
+
+        <c:if test="${error}">
             $("#error").slideDown();
         </c:if>
 
@@ -185,7 +188,7 @@
 
         <c:if test="${compared != null}">
             $("#itemsJumbo").hide();
-            $("#statsJumbo").attr('class', 'col-md-12');
+            $("#statsJumbo").attr('class', 'col-md-11');
             $("#curHeader").attr('class', 'col-md-3');
             $("#compHeader").show();
             $("#filler").show();
