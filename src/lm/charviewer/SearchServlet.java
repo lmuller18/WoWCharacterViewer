@@ -14,6 +14,9 @@ public class SearchServlet extends HttpServlet {
         String realm = request.getParameter("realmName");
         CharacterViewer characterViewer = new CharacterViewer();
         characterViewer.getCharacter(name, realm);
+        request.setAttribute("curName", characterViewer.getName());
+        request.setAttribute("curLevel", characterViewer.getLevel());
+        request.setAttribute("curHealth", characterViewer.getHealth());
         request.setAttribute("searched", true);
         request.setAttribute("char", characterViewer);
         request.getRequestDispatcher("/index.jsp").forward(request, response);

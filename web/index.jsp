@@ -46,15 +46,30 @@
         <div id="holder" class="jumbotron mainJumbo" style="display: none">
             <div class="container" style="width: 100%">
                 <div class="row" style="width: 100%">
-                    <div class="col-md-7">
+                    <div id="statsJumbo" class="col-md-7">
                         <div class="jumbotron innerJumbo">
                             <div class="row">
-                                <h2 align="center" style="color: white">
-                                    <c:out value="${characterViewer.getName()}"/>
-                                </h2>
-                                <h3 align="center" style="color: white"><em>lv:<c:out value="${characterViewer.getLevel()}"/>
-                                    | <c:out value="${characterViewer.getHealth()}"/>
-                                    hp</em></h3>
+                                <div class="row">
+                                    <div id="curHeader" class="col-md-12">
+                                        <h2 align="center" style="color: white">
+                                            ${curName}
+                                        </h2>
+                                        <h3 align="center" style="color: white">
+                                            <em>lv:${curLevel} | ${curHealth}hp</em>
+                                        </h3>
+                                    </div>
+                                    <div id=compHeader class="col-md-3" style="display: none">
+                                        <h2 align="center" style="color: white">
+                                            ${compName}
+                                        </h2>
+                                        <h3 align="center" style="color: white">
+                                            <em>lv:${compLevel} | ${compHealth}hp</em>
+                                        </h3>
+                                    </div>
+                                    <div id="filler" class="col-md-6" style="display: none"></div>
+
+                                </div>
+                                <div class="row">
                                 <div class="col-md-4">
                                     <h3 style="color: white">Attributes</h3>
                                     <table class="table table-borderless">
@@ -78,7 +93,7 @@
                                         <tbody id="enhancements"></tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-4">
+                                <div id="compareDiv" class="col-md-4">
                                     <h3 style="color: white">Compare Characters</h3>
                                     <table class="table table-borderless">
                                         <thead>
@@ -99,11 +114,12 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-5">
+                    <div id="itemsJumbo" class="col-md-5">
                         <div class="jumbotron innerJumbo">
                             <h3 style="color: white">Items</h3>
                             <table class="table table-borderless">
@@ -145,13 +161,19 @@
             $(".compareName").on("click",function(e) {
                 var redirect = "${pageContext.request.contextPath}/compare";
                 $.redirectPost(redirect, {
-                    name: $(this).text(),
-                    curName: "<c:out value="${characterViewer.getName()}"/>"
+                    compName: $(this).text(),
+                    curName: "${curName}"
                 });
             });
         });
 
         <c:if test="${compared != null}">
+            $("#itemsJumbo").hide();
+            $("#statsJumbo").attr('class', 'col-md-12');
+            $("#curHeader").attr('class', 'col-md-3');
+            $("#compHeader").show();
+            $("#filler").show();
+
             <c:set var="compAttributes" value="${compAttributes}"/>
             <c:set var="curAttributes" value="${curAttributes}"/>
             var attributes = ${curAttributes};

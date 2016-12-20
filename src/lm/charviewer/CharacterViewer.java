@@ -101,6 +101,21 @@ public class CharacterViewer {
         return charObj.get("stats").getAsJsonObject().get("health").getAsInt();
     }
 
+    public static int getCompareHealth(String name){
+        try{
+            String query = "SELECT * from `CHARACTER` WHERE CHARNAME = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            rs.next();
+            return rs.getInt("HP");
+        } catch (SQLException e){
+
+        }
+        return 0;
+    }
+
     /**
      * Returns level for current character
      * @return character's level
@@ -109,13 +124,26 @@ public class CharacterViewer {
         return charObj.get("level").getAsInt();
     }
 
+    public static int getCompareLevel(String name){
+        try{
+            String query = "SELECT * from `CHARACTER` WHERE CHARNAME = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            rs.next();
+            return rs.getInt("LEVEL");
+        } catch (SQLException e){
+
+        }
+        return 0;
+    }
+
     /**
      * Returns name for current character
      * @return character's name
      */
-    public String getName(){
-        return charObj.get("name").getAsString();
-    }
+    public String getName(){return charObj.get("name").getAsString();}
 
     public static String getCompareAttributes(String name){
         try{

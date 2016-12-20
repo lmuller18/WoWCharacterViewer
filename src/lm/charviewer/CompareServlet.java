@@ -10,7 +10,7 @@ import java.io.IOException;
 @WebServlet("/compare")
 public class CompareServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String name = request.getParameter("name");
+        String name = request.getParameter("compName");
         String curName = request.getParameter("curName");
         request.setAttribute("compAttributes", CharacterViewer.getCompareAttributes(name));
         request.setAttribute("curAttributes", CharacterViewer.getCompareAttributes(curName));
@@ -23,6 +23,15 @@ public class CompareServlet extends HttpServlet {
 
         request.setAttribute("compEnhancements", CharacterViewer.getCompareEnhancements(name));
         request.setAttribute("curEnhancements", CharacterViewer.getCompareEnhancements(curName));
+
+        request.setAttribute("curName", curName);
+        request.setAttribute("compName", name);
+
+        request.setAttribute("curHealth", CharacterViewer.getCompareHealth(curName));
+        request.setAttribute("compHealth", CharacterViewer.getCompareHealth(name));
+
+        request.setAttribute("curLevel", CharacterViewer.getCompareLevel(curName));
+        request.setAttribute("compLevel", CharacterViewer.getCompareLevel(name));
 
         request.setAttribute("compared", true);
         request.getRequestDispatcher("/index.jsp").forward(request, response);
