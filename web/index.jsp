@@ -22,8 +22,8 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <html>
     <head>
@@ -39,10 +39,15 @@
                     <input id="realmName" type="text" name="realmName" class="form-control" placeholder="Realm Name"><br>
                     <button id="searchButton" type="submit" class="btn btn-primary" style="width: 100%">Submit</button><br>
                 </form>
+                <div id="error" align="center" class="alert alert-danger alert-dismissible" style="display: none">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>Error: </strong> Character not found.
+                </div>
             </div>
         </div>
 
         <c:set var="characterViewer" value="${char}"/>
+
         <div id="holder" class="jumbotron mainJumbo" style="display: none">
             <div class="container" style="width: 100%">
                 <div class="row" style="width: 100%">
@@ -127,8 +132,8 @@
                                     <tr>
                                         <td class="tableVal"><b>Slot</b></td>
                                         <td class="tableVal"><b>Item</b></td>
-                                        <td class="tableVal"><b>Buy Price</b><img src="static/images/coin.png" height="15px" width="15px"></td>
-                                        <td class="tableVal"><b>Sell Price</b><img src="static/images/coin.png" height="15px" width="15px"></td>
+                                        <td class="tableVal"><b>Buy Price</b></td>
+                                        <td class="tableVal"><b>Sell Price</b></td>
                                     </tr>
                                 </thead>
                                 <tbody id="items"></tbody>
@@ -147,11 +152,14 @@
     </body>
 
     <script>
+        <c:if test="${notFound}">
+            $("#error").slideDown();
+        </c:if>
+
         $("#close").click(function () {
            $("#holder").slideUp();
         });
 
-        // jquery extend function
         $.extend(
             {
                 redirectPost: function(location, args)

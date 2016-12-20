@@ -31,7 +31,7 @@ public class CharacterViewer {
      * @param name - the name of the character to search for
      * @param realm - the realm of the character to search for
      */
-    public void getCharacter(String name, String realm){
+    public boolean getCharacter(String name, String realm){
         String charInfo = "";
         try {
             // access the api
@@ -41,8 +41,7 @@ public class CharacterViewer {
             conn.setRequestProperty("Accept", "application/json");
 
             if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
+                return false;
             }
 
             // retrieve the json data
@@ -58,6 +57,10 @@ public class CharacterViewer {
             JsonParser jsonParser = new JsonParser();
             JsonElement element = jsonParser.parse(charInfo);
 
+            JsonObject temp = element.getAsJsonObject();
+            if(temp == null || (temp.get("status") != null && temp.get("status").getAsString().equals("nok"))){
+                return false;
+            }
             // set charObj
             charObj = element.getAsJsonObject();
 
@@ -67,6 +70,7 @@ public class CharacterViewer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     /**
@@ -165,6 +169,11 @@ public class CharacterViewer {
         return "";
     }
 
+    /**
+     * Retrieve Attack stats from database
+     * @param name - name of character to search for
+     * @return - attack stats
+     */
     public static String getCompareAttack(String name){
         try{
             String query = "SELECT * from ATTACK WHERE Attack_ID = ?";
@@ -189,6 +198,11 @@ public class CharacterViewer {
         return "";
     }
 
+    /**
+     * Retrieve Defense stats from database
+     * @param name - name of character to search for
+     * @return defense stats
+     */
     public static String getCompareDefense(String name){
         try{
             String query = "SELECT * from DEFENSE WHERE Defense_ID = ?";
@@ -211,6 +225,11 @@ public class CharacterViewer {
         return "";
     }
 
+    /**
+     * Retrieve Enhancements from the database
+     * @param name - name of character to search for
+     * @return Enhancements
+     */
     public static String getCompareEnhancements(String name){
         try{
             String query = "SELECT * from ENHANCEMENTS WHERE Enhancement_ID = ?";
@@ -233,6 +252,7 @@ public class CharacterViewer {
         }
         return "";
     }
+
 
     public static String getCompareCharacter(String name){
         try{
@@ -454,6 +474,7 @@ public class CharacterViewer {
 
     /**
      * Returns currently equipped items
+     * gets cost
      * adds items to db
      * @return currently equipped items
      */
@@ -508,45 +529,50 @@ public class CharacterViewer {
         return items;
     }
 
-    public ArrayList<String> getItemList(String name){
-        try{
-            String query = "SELECT ITEM_ID FROM ITEMS WHERE Owner = ?";
-            PreparedStatement preparedStatement = con.prepareStatement(query);
-            preparedStatement.setString(1, name);
-            ResultSet rs = preparedStatement.executeQuery();
+//    public ArrayList<String> getItemList(String name){
+//        try{
+//            String query = "SELECT ITEM_ID FROM ITEMS WHERE Owner = ?";
+//            PreparedStatement preparedStatement = con.prepareStatement(query);
+//            preparedStatement.setString(1, name);
+//            ResultSet rs = preparedStatement.executeQuery();
+//
+//            String id;
+//            int buy;
+//            int sell;
+//            JsonObject itemDetails;
+//            ArrayList<String> items = new ArrayList<>();
+//            while(rs.next()){
+//                id = rs.getString("ITEM_ID");
+//                itemDetails = getItemDetails(id);
+//                buy = itemDetails.get("buyPrice").getAsInt();
+//                sell = itemDetails.get("sellPrice").getAsInt();
+//                String update = "UPDATE ITEMS SET BUYCOST=?, SELLCOST=? WHERE ITEM_ID=?";
+//                preparedStatement = con.prepareStatement(update);
+//                preparedStatement.setInt(1, buy);
+//                preparedStatement.setInt(2, sell);
+//                preparedStatement.setString(3, id);
+//
+//                preparedStatement.executeUpdate();
+//
+//                JsonObject json = new JsonObject();
+//                json.addProperty("id", id);
+//                json.addProperty("sell", sell);
+//                json.addProperty("buy", buy);
+//
+//                String itemGson = new Gson().toJson(json);
+//
+//                items.add(itemGson);
+//            }
+//            return items;
+//        } catch (SQLException e){}
+//        return null;
+//    }
 
-            String id;
-            int buy;
-            int sell;
-            JsonObject itemDetails;
-            ArrayList<String> items = new ArrayList<>();
-            while(rs.next()){
-                id = rs.getString("ITEM_ID");
-                itemDetails = getItemDetails(id);
-                buy = itemDetails.get("buyPrice").getAsInt();
-                sell = itemDetails.get("sellPrice").getAsInt();
-                String update = "UPDATE ITEMS SET BUYCOST=?, SELLCOST=? WHERE ITEM_ID=?";
-                preparedStatement = con.prepareStatement(update);
-                preparedStatement.setInt(1, buy);
-                preparedStatement.setInt(2, sell);
-                preparedStatement.setString(3, id);
-
-                preparedStatement.executeUpdate();
-
-                JsonObject json = new JsonObject();
-                json.addProperty("id", id);
-                json.addProperty("sell", sell);
-                json.addProperty("buy", buy);
-
-                String itemGson = new Gson().toJson(json);
-
-                items.add(itemGson);
-            }
-            return items;
-        } catch (SQLException e){}
-        return null;
-    }
-
+    /**
+     * Retrieves full item details from api call
+     * @param id - item id
+     * @return - item jsonobject
+     */
     public JsonObject getItemDetails(String id){
         try{
             String itemInfo = "";
