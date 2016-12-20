@@ -1,9 +1,6 @@
 package lm.charviewer;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -459,42 +457,126 @@ public class CharacterViewer {
      * adds items to db
      * @return currently equipped items
      */
-    public String getItems(){
+    public ArrayList<String> getItems(){
         if(charObj == null){
             return null;
         }
 
         JsonObject object = charObj.get("items").getAsJsonObject();
-        LinkedHashMap<String, String> items = new LinkedHashMap<>();
         String name = getName();
+        ArrayList<String> items = new ArrayList<>();
+        int buy, sell;
+        JsonObject itemDetails;
         for (Map.Entry<String,JsonElement> entry : object.entrySet()) {
             try{
                 String slot = entry.getKey();
                 slot = Character.toUpperCase(slot.charAt(0)) + slot.substring(1);
                 String item = entry.getValue().getAsJsonObject().get("name").getAsString();
                 String id = entry.getValue().getAsJsonObject().get("id").getAsString();
-                items.put(slot, item);
+                itemDetails = getItemDetails(id);
+                buy = itemDetails.get("buyPrice").getAsInt();
+                sell = itemDetails.get("sellPrice").getAsInt();
+
+                JsonObject json = new JsonObject();
+                json.addProperty("slot", slot);
+                json.addProperty("item", item);
+                json.addProperty("buy", buy);
+                json.addProperty("sell", sell);
 
                 try{
-                    String query = "insert into items(Owner, SLOT, ITEM, ITEM_ID) values(?, ?, ?, ?)";
+                    String query = "insert into items(Owner, SLOT, ITEM, ITEM_ID, BUYCOST, SELLCOSE) values(?, ?, ?, ?, ?, ?)";
                     PreparedStatement preparedStatement = con.prepareStatement(query);
                     preparedStatement.setString(1, name);
                     preparedStatement.setString(2, slot);
                     preparedStatement.setString(3, item);
                     preparedStatement.setString(4, id);
+                    preparedStatement.setInt(5, buy);
+                    preparedStatement.setInt(6, sell);
 
                     preparedStatement.executeUpdate();
                 } catch (SQLException e){
 
                 }
+
+                String itemGson = new Gson().toJson(json);
+
+                items.add(itemGson);
             } catch (IllegalStateException e){
 
             }
         }
-
-        String json = new Gson().toJson(items);
-
-        return json;
+        return items;
     }
 
+    public ArrayList<String> getItemList(String name){
+        try{
+            String query = "SELECT ITEM_ID FROM ITEMS WHERE Owner = ?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            String id;
+            int buy;
+            int sell;
+            JsonObject itemDetails;
+            ArrayList<String> items = new ArrayList<>();
+            while(rs.next()){
+                id = rs.getString("ITEM_ID");
+                itemDetails = getItemDetails(id);
+                buy = itemDetails.get("buyPrice").getAsInt();
+                sell = itemDetails.get("sellPrice").getAsInt();
+                String update = "UPDATE ITEMS SET BUYCOST=?, SELLCOST=? WHERE ITEM_ID=?";
+                preparedStatement = con.prepareStatement(update);
+                preparedStatement.setInt(1, buy);
+                preparedStatement.setInt(2, sell);
+                preparedStatement.setString(3, id);
+
+                preparedStatement.executeUpdate();
+
+                JsonObject json = new JsonObject();
+                json.addProperty("id", id);
+                json.addProperty("sell", sell);
+                json.addProperty("buy", buy);
+
+                String itemGson = new Gson().toJson(json);
+
+                items.add(itemGson);
+            }
+            return items;
+        } catch (SQLException e){}
+        return null;
+    }
+
+    public JsonObject getItemDetails(String id){
+        try{
+            String itemInfo = "";
+            URL url = new URL("https://us.api.battle.net/wow/item/"+id+"?locale=en_US&apikey=9ebxvqhu6a5ym2u8cgc7eg3u3tsd8cae");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+
+            // retrieve the json data
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            String output;
+            while ((output = br.readLine()) != null) {
+                itemInfo += output;
+            }
+            br.close();
+            conn.disconnect();
+
+            // cast to json
+            JsonParser jsonParser = new JsonParser();
+            JsonElement element = jsonParser.parse(itemInfo);
+
+            // set charObj
+            JsonObject itemDetails = element.getAsJsonObject();
+            return itemDetails;
+        } catch (IOException e){}
+        return null;
+    }
 }

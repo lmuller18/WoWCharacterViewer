@@ -19,6 +19,8 @@ public class SearchServlet extends HttpServlet {
         request.setAttribute("curHealth", characterViewer.getHealth());
         request.setAttribute("searched", true);
         request.setAttribute("char", characterViewer);
+//        request.setAttribute("itemList", characterViewer.getItemList(name));
+
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 

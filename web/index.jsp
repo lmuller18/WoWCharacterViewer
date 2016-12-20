@@ -46,7 +46,7 @@
         <div id="holder" class="jumbotron mainJumbo" style="display: none">
             <div class="container" style="width: 100%">
                 <div class="row" style="width: 100%">
-                    <div id="statsJumbo" class="col-md-7">
+                    <div id="statsJumbo" class="col-md-6">
                         <div class="jumbotron innerJumbo">
                             <div class="row">
                                 <div class="row">
@@ -106,7 +106,7 @@
                                         <tbody>
                                             <c:forEach var="row" items="${result.rows}">
                                                 <tr class="compareRow" >
-                                                    <td class="tableKey compareName" style="cursor: hand"><c:out value="${row.CHARNAME}"/></td>
+                                                    <td class="tableVal compareName" style="cursor: hand"><b><u><c:out value="${row.CHARNAME}"/></u></b></td>
                                                     <td class="tableKey">lv <c:out value="${row.LEVEL}"/></td>
                                                     <td class="tableKey"><c:out value="${row.HP}hp"/></td>
                                                 </tr>
@@ -123,16 +123,24 @@
                         <div class="jumbotron innerJumbo">
                             <h3 style="color: white">Items</h3>
                             <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <td class="tableVal"><b>Slot</b></td>
+                                        <td class="tableVal"><b>Item</b></td>
+                                        <td class="tableVal"><b>Buy Price</b><img src="static/images/coin.png" height="15px" width="15px"></td>
+                                        <td class="tableVal"><b>Sell Price</b><img src="static/images/coin.png" height="15px" width="15px"></td>
+                                    </tr>
+                                </thead>
                                 <tbody id="items"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <%--<div class="col-md-1" align="right">--%>
-                        <%--<div style="margin-right: 20px; margin-top: 20px; margin-bottom: 20px">--%>
-                            <%--<img id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">--%>
-                        <%--</div>--%>
-                    <%--</div>--%>
+                    <div class="col-md-1" align="right">
+                        <div style="margin-right: 20px; margin-top: 20px; margin-bottom: 20px">
+                            <img id="close" src="static/images/close.png" style="cursor: hand" height="50px" width="50px">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -227,20 +235,6 @@
                     "</tr>";
             }
             $("#enhancements").html(e);
-
-            //TO DO
-            //EXPAND STATS TO 100%
-            //REMOVE COMPARE CHARACTER SECTION
-
-            <%--var items = ${characterViewer.getItems()};--%>
-            <%--var i = "";--%>
-            <%--for (var it in items) {--%>
-                <%--i +=    "<tr> " +--%>
-                    <%--"<td class=\"tableKey\">" + it + "</td> " +--%>
-                    <%--"<td class=\"tableVal\">" + items[it] + "</td> " +--%>
-                    <%--"</tr>";--%>
-            <%--}--%>
-            <%--$("#items").html(i);--%>
             $("#holder").slideDown();
         </c:if>
 
@@ -287,13 +281,17 @@
             $("#enhancements").html(e);
 
             var items = ${characterViewer.getItems()};
+            <%--var itemList = ${itemList};--%>
             var i = "";
-            for (var it in items) {
+            items.forEach(function(entry){
+//                var parsed = JSON.parse(itemList[count]);
                 i +=    "<tr> " +
-                    "<td class=\"tableKey\">" + it + "</td> " +
-                    "<td class=\"tableVal\">" + items[it] + "</td> " +
-                    "</tr>";
-            }
+                            "<td class=\"tableKey\">" + entry.slot + "</td> " +
+                            "<td class=\"tableKey\">" + entry.item + "</td> " +
+                            "<td class=\"tableVal\">" + entry.buy + "</td> " +
+                            "<td class=\"tableVal\">" + entry.sell + "</td> " +
+                        "</tr>";
+            });
             $("#items").html(i);
             $("#holder").slideDown();
         </c:if>
